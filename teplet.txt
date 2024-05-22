@@ -1,0 +1,265 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <map>
+#include <ctime> 
+using namespace std;
+class BakeryMenu {
+private:
+    string menu;
+
+public:
+    void SetMenu(const string& menuItems) {
+        menu = menuItems;
+    }
+    string GetMenu() const {
+        return menu;
+    }
+    void DisplayInfo() const {
+        cout << "Here is the menu: " << menu << endl;
+    }
+};
+class BasicOrder {
+private:
+    string item;
+    int quantity;
+
+public:
+    void SetOrder(const string& item, int quantity) {
+        this->item = item;
+        this->quantity = quantity;
+    }
+    string GetItem() const {
+        return item;
+    }
+    int GetQuantity() const {
+        return quantity;
+    }
+};
+class CheckTheOrder {
+public:
+    void CheckOrder(const BasicOrder& order) const {
+        float total = order.GetQuantity() * 0.25; 
+        cout << "Checking order..." << endl;
+        cout << "Order: " << order.GetItem() << ", Quantity: " << order.GetQuantity() << endl;
+        cout << "Total Price: $" << total << endl;
+    }
+};
+class CalculateTheOrder {
+public:
+    void ResetTable() {
+        cout << "Table reset successful!" << endl;
+    }
+};
+class Offers {
+public:
+    void ApplyOffer(const BasicOrder& order) {
+        if (order.GetQuantity() > 5 && order.GetItem()[0] == 'A') {
+            float total = order.GetQuantity() * 0.25;
+            total *= 0.75; 
+            cout << "Congratulations! You qualify for a special offer." << endl;
+            cout << "Enjoy your discount! Total Price: $" << total << endl;
+        } else {
+            cout << "No offer available for this order." << endl;
+        }
+    }
+};
+
+
+class CoffeeShop {
+private:
+    string name;
+    string address;
+    string phone;
+    map<string, double> menuItemsWithPrices;
+
+public:
+    CoffeeShop(string n, string addr, string ph) : name(n), address(addr), phone(ph) {
+        menuItemsWithPrices = {
+            {"Espresso", 5.00},
+            {"Cappuccino", 3.00},
+            {"Latte", 3.25},
+            {"Mocha", 3.50},
+            {"Coffee", 2.75},
+            {"Juice", 3.25},
+            {"Tea", 1.50},
+            {"Water", 1.00},
+            {"Soda", 1.75},
+            {"Milk", 1.50}
+        };
+    }
+
+    string getCoffeeShopInfo() const {
+        return "Name: " + name + "\nAddress: " + address + "\nPhone: " + phone;
+    }
+
+    void displayMenu() const {
+        cout << "Coffee Shop Menu:" << endl;
+        for (const auto& pair : menuItemsWithPrices) {
+            cout << pair.first << ": $" << pair.second << endl;
+        }
+    }
+
+    double getItemPrice(const string& itemName) const {
+        auto it = menuItemsWithPrices.find(itemName);
+        if (it != menuItemsWithPrices.end()) {
+            return it->second;
+        }
+        return 0.0;
+    }
+};
+
+// Customer class
+class Customer {
+private:
+    string name;
+    int id;
+    string email;
+
+public:
+    Customer() : name("mohamed"), id(0), email("mohamed@shahin.com") {}
+
+    Customer(string n, int i, string e) : name(n), id(i), email(e) {}
+
+    string getCustomerInfo() const {
+        return "Customer ID: " + to_string(id) + "\nName: " + name + "\nEmail: " + email;
+    }
+};
+
+
+class CustomerOrder {
+private:
+    static int nextOrderId; 
+    int orderId;
+    string orderDate;
+    vector<string> orderDetails;
+    Customer customer;
+    double totalPrice;
+
+public:
+    CustomerOrder() : orderId(0), orderDate("0000-00-00"), customer(), totalPrice(0.0) {}
+
+    CustomerOrder(string orderDate, const Customer& customer) 
+        : orderId(nextOrderId++), orderDate(orderDate), customer(customer), totalPrice(0.0) {}
+
+    double calculateTotalPrice(const CoffeeShop& coffeeShop) {
+        totalPrice = 0.0;
+        for (const auto& item : orderDetails) {
+            totalPrice += coffeeShop.getItemPrice(item);
+        }
+        return totalPrice;
+    }
+
+    void addItem(const string& item) {
+        orderDetails.push_back(item);
+    }
+
+    string getOrderDetails() const {
+        string details = "Order ID: " + to_string(orderId) + "\nOrder Date: " + orderDate + "\n";
+        for (const auto& item : orderDetails) {
+            details += item + "\n";
+        }
+        return details;
+    }
+
+    string getCustomerInfo() const {
+        return customer.getCustomerInfo();
+    }
+};
+
+
+int CustomerOrder::nextOrderId = 1;
+
+// Main function
+int main() {
+    cout << "Select the type of menu:\n1. Bakery Menu\n2. Coffee Shop Menu\nEnter choice: ";
+    int choice;
+    cin >> choice;
+    if (choice == 1) {
+        BakeryMenu menu;
+        menu.SetMenu("Cake, Pizza, Sandwich,arrona,feno");
+        cout << "Menu Items:" << endl;
+        menu.DisplayInfo();
+        CheckTheOrder checker;
+        CalculateTheOrder calculator;
+        Offers offer;
+        vector<BasicOrder> orders;
+        char addMore;
+        do {
+            string item;
+            int quantity;
+
+            cout << "Enter item: ";
+            cin >> item;
+
+            cout << "Enter quantity: ";
+            cin >> quantity;
+
+            BasicOrder order;
+            order.SetOrder(item, quantity);
+            orders.push_back(order);
+
+            cout << "Do you want to add another order? (y/n): ";
+            cin >> addMore;
+        } while (addMore == 'y');
+        cout << "Order Details:" << endl;
+        for (const auto& order : orders) {
+            checker.CheckOrder(order);
+            calculator.ResetTable();
+            offer.ApplyOffer(order);
+        }
+    } else if (choice == 2) {
+        CoffeeShop coffeeShop("Starbucks", "Almanufia", "0122304424");
+        cout << "Coffee Shop Info:\n" << coffeeShop.getCoffeeShopInfo() << endl;
+        coffeeShop.displayMenu();
+
+        CustomerOrder coffeeOrder;
+        char addMore;
+        do {
+            string itemName;
+            cout << "\nEnter item to add to the order: ";
+            cin >> itemName;
+
+            if (coffeeShop.getItemPrice(itemName) > 0) {
+                coffeeOrder.addItem(itemName);
+                cout << itemName << " added to the order." << endl;
+            } else {
+                cout << "Item not found in the menu." << endl;
+            }
+
+            cout << "Do you want to add another item? (y/n): ";
+            cin >> addMore;
+        } while (addMore == 'y' || addMore == 'Y');
+
+        double total = coffeeOrder.calculateTotalPrice(coffeeShop);
+
+        // Generate current date
+        time_t now = time(0);
+        tm* currentTime = localtime(&now);
+        string orderDate = to_string(currentTime->tm_year + 1900) + "-" + to_string(currentTime->tm_mon + 1) + "-" + to_string(currentTime->tm_mday);
+
+        string customerName, customerEmail;
+        int customerId;
+        cout << "\nEnter customer ID: ";
+        cin >> customerId;
+        cout << "Enter customer name: ";
+        cin.ignore();
+        getline(cin, customerName);
+        cout << "Enter customer email: ";
+        cin >> customerEmail;
+
+        Customer customer(customerName, customerId, customerEmail);
+
+        CustomerOrder newOrder(orderDate, customer);
+
+        cout << "\nOrder Details:\n" << newOrder.getOrderDetails() << endl;
+
+        cout << "\nCustomer Info:\n" << newOrder.getCustomerInfo() << endl;
+
+        cout << "Total Price: $" << total << endl;
+    } else {
+        cout << "Invalid choice. Exiting..." << endl;
+    }
+
+    return 0;
+}
